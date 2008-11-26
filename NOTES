@@ -1,5 +1,0 @@
-The origin server effectively ends a session by sending the client a Set-Cookie2 header with Max-Age=0.
-
-Max-Age The default behavior is to discard the cookie when the user agent exits.
-
-
