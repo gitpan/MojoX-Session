@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                MojoX-Session
-version:             0.03
+version:             0.04
 abstract:            Session management for Mojo
 license:             perl
 author:              

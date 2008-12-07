@@ -3,7 +3,7 @@ package MojoX::Session;
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use base 'Mojo::Base';
 
@@ -117,7 +117,7 @@ sub data {
 
     my %params = @_;
 
-    $self->_data(\%params);
+    $self->_data({%{$self->_data}, %params});
     $self->_is_flushed(0);
 }
 
@@ -126,6 +126,8 @@ sub flash {
     my ($key) = @_;
 
     return unless $key;
+
+    $self->_is_flushed(0);
 
     return delete $self->data->{$key};
 }
@@ -139,6 +141,8 @@ sub clear {
     } else {
         $self->_data({});
     }
+
+    $self->_is_flushed(0);
 }
 
 sub expire {
