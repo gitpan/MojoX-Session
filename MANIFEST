@@ -23,6 +23,7 @@ t/lib/MojoX/Session/Transport/Dummy.pm
 t/lib/NewDB.pm
 t/load.t
 t/store/dbi.t
+t/transport/cookie-multi.t
 t/transport/cookie.t
 t/values.t
 META.yml                                 Module meta-data (added by MakeMaker)
