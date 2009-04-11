@@ -2,6 +2,7 @@ Changes
 lib/MojoX/Session.pm
 lib/MojoX/Session/Store.pm
 lib/MojoX/Session/Store/DBI.pm
+lib/MojoX/Session/Store/DBIC.pm
 lib/MojoX/Session/Transport.pm
 lib/MojoX/Session/Transport/Cookie.pm
 Makefile.PL
@@ -23,6 +24,7 @@ t/lib/MojoX/Session/Transport/Dummy.pm
 t/lib/NewDB.pm
 t/load.t
 t/store/dbi.t
+t/store/dbic.t
 t/transport/cookie-multi.t
 t/transport/cookie.t
 t/values.t
