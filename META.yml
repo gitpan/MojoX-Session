@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               MojoX-Session
-version:            0.11
+version:            0.12
 abstract:           Session management for Mojo
 author:
     - Viacheslav Tikhanovskii <vti@cpan.org>
