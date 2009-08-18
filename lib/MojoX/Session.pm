@@ -3,29 +3,25 @@ package MojoX::Session;
 use strict;
 use warnings;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use base 'Mojo::Base';
 
-use Mojo::Transaction;
+use Mojo::Transaction::Single;
 use Digest::SHA1;
 
-__PACKAGE__->attr(
-    tx => (chained => 1, weak => 1, default => sub { Mojo::Transaction->new })
-);
-__PACKAGE__->attr('store',     chained => 1);
-__PACKAGE__->attr('transport', chained => 1);
+__PACKAGE__->attr(tx => sub { Mojo::Transaction::Single->new });
+__PACKAGE__->attr([qw/ sid store transport /]);
 
-__PACKAGE__->attr('ip_match',      default => 0,    chained => 1);
-__PACKAGE__->attr('expires_delta', default => 3600, chained => 1);
+__PACKAGE__->attr(ip_match => 0);
+__PACKAGE__->attr(expires_delta => 3600);
 
-__PACKAGE__->attr('_is_new',     default => 0);
-__PACKAGE__->attr('_is_stored',  default => 0);
-__PACKAGE__->attr('_is_flushed', default => 1);
+__PACKAGE__->attr(_is_new => 0);
+__PACKAGE__->attr(_is_stored => 0);
+__PACKAGE__->attr(_is_flushed => 1);
 
-__PACKAGE__->attr('sid', chained => 1);
-__PACKAGE__->attr('_expires', chained => 1, default => 0);
-__PACKAGE__->attr('_data', default => sub { {} });
+__PACKAGE__->attr(_expires => 0);
+__PACKAGE__->attr(_data => sub { {} });
 
 sub create {
     my $self = shift;
@@ -397,11 +393,13 @@ vti, C<vti@cpan.org>.
 
 =head1 CREDITS
 
+David Davis
+
 William Ono
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008, Viacheslav Tikhanovskii.
+Copyright (C) 2008, Viacheslav Tykhanovskyi.
 
 This program is free software, you can redistribute it and/or modify it under
 the same terms as Perl 5.10.

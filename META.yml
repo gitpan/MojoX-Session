@@ -1,9 +1,9 @@
 --- #YAML:1.0
 name:               MojoX-Session
-version:            0.12
+version:            0.13
 abstract:           Session management for Mojo
 author:
-    - Viacheslav Tikhanovskii <vti@cpan.org>
+    - Viacheslav Tykhanovskyi <vti@cpan.org>
 license:            perl
 distribution_type:  module
 configure_requires:
@@ -13,7 +13,7 @@ build_requires:
 requires:
     Digest::SHA1:  0
     MIME::Base64:  0
-    Mojo:          0.9002
+    Mojo:          0.991250
     Storable:      0
     Test::More:    0
 no_index:
