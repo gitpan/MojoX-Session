@@ -7,22 +7,20 @@ BEGIN {
 
 use lib 't/lib';
 
-plan tests => 8;
+plan tests => 10;
 
 use_ok('MojoX::Session');
-use_ok('MojoX::Session::Store::DBI');
 
 use NewDB;
 
 my $dbh = NewDB->dbh;
 
-my $session =
-  MojoX::Session->new(store => MojoX::Session::Store::DBI->new(dbh => $dbh));
+my $session = MojoX::Session->new(store => [dbi => {dbh => $dbh}]);
 
 # create
-my $sid = $session->create();
+my $sid = $session->create;
 ok($sid);
-$session->flush();
+ok($session->flush);
 
 # load
 ok($session->load($sid));
@@ -30,11 +28,11 @@ is($session->sid, $sid);
 
 # update
 $session->data(foo => 'bar');
-$session->flush;
+ok($session->flush);
 ok($session->load($sid));
 is($session->data('foo'), 'bar');
 
 # delete
 $session->expire;
-$session->flush;
+ok($session->flush);
 ok(not defined $session->load($sid));

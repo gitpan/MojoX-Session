@@ -3,15 +3,20 @@ package MojoX::Session;
 use strict;
 use warnings;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 use base 'Mojo::Base';
 
+use Mojo::Loader;
+use Mojo::ByteStream;
 use Mojo::Transaction::Single;
+use MojoX::Session::Transport::Cookie;
 use Digest::SHA1;
 
-__PACKAGE__->attr(tx => sub { Mojo::Transaction::Single->new });
-__PACKAGE__->attr([qw/ sid store transport /]);
+__PACKAGE__->attr(loader => sub { Mojo::Loader->new });
+__PACKAGE__->attr(tx     => sub { Mojo::Transaction::Single->new });
+__PACKAGE__->attr([qw/sid _store/]);
+__PACKAGE__->attr(_transport => sub { MojoX::Session::Transport::Cookie->new });
 
 __PACKAGE__->attr(ip_match => 0);
 __PACKAGE__->attr(expires_delta => 3600);
@@ -22,6 +27,65 @@ __PACKAGE__->attr(_is_flushed => 1);
 
 __PACKAGE__->attr(_expires => 0);
 __PACKAGE__->attr(_data => sub { {} });
+
+sub new {
+    my $class = shift;
+    my %args = @_;
+
+    my $store     = delete $args{store};
+    my $transport = delete $args{transport};
+
+    my $self = $class->SUPER::new(%args);
+
+    $self->_store($self->_instance(Store => $store));
+    $self->_transport($self->_instance(Transport => $transport));
+
+    return $self;
+}
+
+sub store {
+    my $self = shift;
+
+    return $self->_store if @_ == 0;
+
+    $self->_store($self->_instance(Store => shift));
+}
+
+sub transport {
+    my $self = shift;
+
+    return $self->_transport if @_ == 0;
+
+    $self->_transport($self->_instance(Transport => shift));
+}
+
+sub _instance {
+    my $self = shift;
+    my ($namespace, $instance) = @_;
+
+    return unless $instance;
+
+    if (ref $instance eq 'HASH') {
+        die 'HASH';
+        #$store
+    }
+    elsif (ref $instance eq 'ARRAY') {
+        my $class = join('::',
+            __PACKAGE__, $namespace,
+            Mojo::ByteStream->new($instance->[0])->camelize);
+        $self->loader->load($class);
+        $instance = $class->new(%{$instance->[1] || {}});
+    }
+    elsif (!ref $instance) {
+        my $class = join('::',
+            __PACKAGE__, $namespace,
+            Mojo::ByteStream->new($instance)->camelize);
+        $self->loader->load($class);
+        $instance = $class->new;
+    }
+
+    return $instance;
+}
 
 sub create {
     my $self = shift;
@@ -91,27 +155,33 @@ sub load {
 sub flush {
     my $self = shift;
 
-    return unless $self->sid && !$self->_is_flushed;
+    return 1 unless $self->sid && !$self->_is_flushed;
 
     if ($self->is_expired && $self->_is_stored) {
         $self->store->delete($self->sid) if $self->store;
         $self->_is_stored(0);
         $self->_is_flushed(1);
-        return;
+        return 1;
     }
 
+    my $ok = 1;
+
     if ($self->_is_new) {
-        $self->store->create($self->sid, $self->expires, $self->data)
+        $ok = $self->store->create($self->sid, $self->expires, $self->data)
           if $self->store;
         $self->_is_new(0);
     }
     else {
-        $self->store->update($self->sid, $self->expires, $self->data)
+        $ok = $self->store->update($self->sid, $self->expires, $self->data)
           if $self->store;
     }
 
+    return unless $ok;
+
     $self->_is_stored(1);
     $self->_is_flushed(1);
+
+    return $ok;
 }
 
 sub data {
@@ -225,8 +295,16 @@ MojoX::Session - Session management for Mojo
 
     my $session = MojoX::Session->new(
         tx        => $tx,
-        store     => MojoX::Session::Store::DBI->new(dbh  => $dbh),
+        store     => MojoX::Session::Store::Dbi->new(dbh  => $dbh),
         transport => MojoX::Session::Transport::Cookie->new,
+        ip_match  => 1
+    );
+
+    # or
+    my $session = MojoX::Session->new(
+        tx        => $tx,
+        store     => [dbi => {dbh => $dbh}],  # use MojoX::Session::Store::Dbi
+        transport => 'cookie',                # this is by default
         ip_match  => 1
     );
 
@@ -260,11 +338,12 @@ L<MojoX::Session> implements the following attributes.
     $tx    = $session->tx(Mojo::Transaction->new);
 
 =head2 C<store>
-    
+
     Store object
 
     my $store = $session->store;
-    $session  = $session->store(MojoX::Session::Store::DBI->new(dbh => $dbh));
+    $session  = $session->store(MojoX::Session::Store::Dbi->new(dbh => $dbh));
+    $session  = $session->store([dbi => {dbh => $dbh});
 
 =head2 C<transport>
 
@@ -273,6 +352,7 @@ L<MojoX::Session> implements the following attributes.
     my $transport = $session->transport;
     $session
         = $session->transport(MojoX::Session::Transport::Cookie->new);
+    $session = $session->transport('cookie'); # by default
 
 =head2 C<ip_match>
 
@@ -294,7 +374,7 @@ L<MojoX::Session> inherits all methods from L<Mojo::Base> and implements the
 following new ones.
 
 =head2 C<new>
-    
+
     my $session = MojoX::Session->new(...);
 
     Returns new L<MojoX::Session> object.
@@ -324,6 +404,8 @@ Flush actually writes to the store in these situations:
 - any value was changed (updates it)
 - session is expired (deletes it)
 
+Returns the value from the corresponding store method call.
+
 =head2 C<sid>
 
     my $sid = $session->sid;
@@ -331,7 +413,7 @@ Flush actually writes to the store in these situations:
 Returns session id.
 
 =head2 C<data>
-    
+
     my $foo = $session->data('foo');
     $session->data('foo' => 'bar');
     $session->data('foo' => 'bar', 'bar' => 'foo');

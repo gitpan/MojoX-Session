@@ -12,10 +12,9 @@ BEGIN {
 
 use lib 't/lib';
 
-plan tests => 8;
+plan tests => 10;
 
 use_ok('MojoX::Session');
-use_ok('MojoX::Session::Store::DBIC');
 
 use NewDB;
 
@@ -23,14 +22,12 @@ my $table  = NewDB->dbh->{Name};
 my $schema = DB->connect("dbi:SQLite:$table");
 my $rs     = $schema->resultset('Session');
 
-my $session =
-  MojoX::Session->new(
-    store => MojoX::Session::Store::DBIC->new(resultset => $rs));
+my $session = MojoX::Session->new(store => [dbic => {resultset => $rs}]);
 
 # create
 my $sid = $session->create();
 ok($sid);
-$session->flush();
+ok($session->flush);
 
 # load
 ok($session->load($sid));
@@ -38,13 +35,13 @@ is($session->sid, $sid);
 
 # update
 $session->data(foo => 'bar');
-$session->flush;
+ok($session->flush);
 ok($session->load($sid));
 is($session->data('foo'), 'bar');
 
 # delete
 $session->expire;
-$session->flush;
+ok($session->flush);
 ok(not defined $session->load($sid));
 
 

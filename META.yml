@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               MojoX-Session
-version:            0.14
+version:            0.15
 abstract:           Session management for Mojo
 author:
     - Viacheslav Tykhanovskyi <vti@cpan.org>
@@ -13,7 +13,7 @@ build_requires:
 requires:
     Digest::SHA1:  0
     MIME::Base64:  0
-    Mojo:          0.991250
+    Mojo:          0.999914
     Storable:      0
     Test::More:    0
 no_index:

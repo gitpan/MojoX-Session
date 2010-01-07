@@ -6,9 +6,8 @@ use warnings;
 use base 'Mojo::Base';
 
 require Carp;
-use Mojo::Transaction;
 
-__PACKAGE__->attr(tx => sub { Mojo::Transaction->new });
+__PACKAGE__->attr('tx');
 
 sub get { Carp::croak('Method "get" not implemented by subbclass') }
 
@@ -60,7 +59,7 @@ vti, C<vti@cpan.org>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008, Viacheslav Tikhanovskii.
+Copyright (C) 2008, Viacheslav Tykhanovskyi.
 
 This program is free software, you can redistribute it and/or modify it under
 the same terms as Perl 5.10.
