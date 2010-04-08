@@ -3,6 +3,8 @@ examples/auth.pl
 lib/Mojolicious/Plugin/Session.pm
 lib/MojoX/Session.pm
 lib/MojoX/Session/Store.pm
+lib/MojoX/Session/Store/AsyncOrm.pm
+lib/MojoX/Session/Store/Couchdb.pm
 lib/MojoX/Session/Store/DBI.pm
 lib/MojoX/Session/Store/Dbi.pm
 lib/MojoX/Session/Store/Dbic.pm
@@ -12,7 +14,6 @@ lib/MojoX/Session/Transport/Cookie.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
-MojoX-Session-0.15.tar.gz
 t/00use.t
 t/01pod.t
 t/02pod-coverage.t
@@ -28,6 +29,9 @@ t/lib/MojoX/Session/Store/Dummy.pm
 t/lib/MojoX/Session/Transport/Dummy.pm
 t/lib/NewDB.pm
 t/load.t
+t/plugin.t
+t/store/async-orm.t
+t/store/couchdb.t
 t/store/dbi.t
 t/store/dbic.t
 t/transport/cookie-multi.t

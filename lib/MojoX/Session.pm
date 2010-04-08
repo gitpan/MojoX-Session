@@ -3,7 +3,7 @@ package MojoX::Session;
 use strict;
 use warnings;
 
-our $VERSION = '0.15';
+our $VERSION = '0.18';
 
 use base 'Mojo::Base';
 
@@ -27,6 +27,8 @@ __PACKAGE__->attr(_is_flushed => 1);
 
 __PACKAGE__->attr(_expires => 0);
 __PACKAGE__->attr(_data => sub { {} });
+
+__PACKAGE__->attr('error');
 
 sub new {
     my $class = shift;
@@ -59,6 +61,24 @@ sub transport {
     $self->_transport($self->_instance(Transport => shift));
 }
 
+sub _load_and_build {
+    my $self = shift;
+    my ($namespace, $name, $args) = @_;
+
+    my $class = join('::',
+        __PACKAGE__, $namespace, Mojo::ByteStream->new($name)->camelize);
+
+    my $rv = $self->loader->load($class);
+
+    if (defined $rv) {
+        die qq/Store "$class" can not be loaded : $rv/ if ref $rv;
+
+        die qq/Store "$class" not found/;
+    }
+
+    return $class->new(%{$args || {}});
+}
+
 sub _instance {
     my $self = shift;
     my ($namespace, $instance) = @_;
@@ -70,18 +90,11 @@ sub _instance {
         #$store
     }
     elsif (ref $instance eq 'ARRAY') {
-        my $class = join('::',
-            __PACKAGE__, $namespace,
-            Mojo::ByteStream->new($instance->[0])->camelize);
-        $self->loader->load($class);
-        $instance = $class->new(%{$instance->[1] || {}});
+        $instance = $self->_load_and_build($namespace, $instance->[0],
+            $instance->[1]);
     }
     elsif (!ref $instance) {
-        my $class = join('::',
-            __PACKAGE__, $namespace,
-            Mojo::ByteStream->new($instance)->camelize);
-        $self->loader->load($class);
-        $instance = $class->new;
+        $instance = $self->_load_and_build($namespace, $instance);
     }
 
     return $instance;
@@ -89,6 +102,7 @@ sub _instance {
 
 sub create {
     my $self = shift;
+    my ($cb) = @_;
 
     $self->_expires(time + $self->expires_delta);
 
@@ -107,12 +121,16 @@ sub create {
 
     $self->_is_flushed(0);
 
+    return $cb->($self, $self->sid) if $cb;
+
     return $self->sid;
 }
 
 sub load {
     my $self = shift;
-    my ($sid) = @_;
+    my ($sid, $cb) = @_;
+
+    ($cb, $sid) = ($sid, undef) if ref $sid eq 'CODE';
 
     $self->sid(undef);
     $self->_expires(0);
@@ -124,10 +142,45 @@ sub load {
 
     unless ($sid) {
         $sid = $self->transport->get;
-        return unless $sid;
+        return $cb ? $cb->($self) : undef unless $sid;
     }
 
-    my ($expires, $data) = $self->store->load($sid);
+    if ($self->store->is_async) {
+        $self->store->load(
+            $sid => sub {
+                my ($store, $expires, $data) = @_;
+
+                if ($store->error) {
+                    $self->error($store->error);
+                    return $cb ? $cb->($self) : undef;
+                }
+
+                my $sid = $self->_on_load($sid, $expires, $data);
+
+                return $cb->($self, $sid) if $cb;
+
+                return $sid;
+            }
+          );
+    }
+    else {
+        my ($expires, $data) = $self->store->load($sid);
+
+        return $self->error($self->store->error) && undef
+          if $self->store->error;
+
+        my $sid = $self->_on_load($sid, $expires, $data);
+
+        return unless $sid;
+
+        return $sid;
+    }
+}
+
+sub _on_load {
+    my $self = shift;
+    my ($sid, $expires, $data) = @_;
+
     unless (defined $expires && defined $data) {
         $self->transport->set($sid, time - 30 * 24 * 3600)
           if $self->transport;
@@ -154,34 +207,78 @@ sub load {
 
 sub flush {
     my $self = shift;
+    my ($cb) = @_;
 
-    return 1 unless $self->sid && !$self->_is_flushed;
+    return $cb ? $cb->($self) : 1 unless $self->sid && !$self->_is_flushed;
 
     if ($self->is_expired && $self->_is_stored) {
-        $self->store->delete($self->sid) if $self->store;
-        $self->_is_stored(0);
-        $self->_is_flushed(1);
-        return 1;
-    }
+        if ($self->store->is_async) {
 
-    my $ok = 1;
+            $self->store->delete(
+                $self->sid => sub {
+                    my ($store) = @_;
 
-    if ($self->_is_new) {
-        $ok = $self->store->create($self->sid, $self->expires, $self->data)
-          if $self->store;
-        $self->_is_new(0);
+                    if (my $error = $store->error) {
+                        $self->error($error);
+                        return $cb ? $cb->($self) : undef;
+                    }
+
+                    $self->_is_stored(0);
+                    $self->_is_flushed(1);
+
+                    return $cb->($self) if $cb;
+
+                    return 1;
+                }
+            );
+        }
+        else {
+            my $ok = $self->store->delete($self->sid);
+            $self->_is_stored(0);
+            $self->_is_flushed(1);
+            return $ok;
+        }
     }
     else {
-        $ok = $self->store->update($self->sid, $self->expires, $self->data)
-          if $self->store;
+        my $ok = 1;
+
+        my $action = $self->_is_new ? 'create' : 'update';
+
+        $self->_is_new(0);
+
+        if ($self->store->is_async) {
+            $self->store->$action(
+                $self->sid,
+                $self->expires,
+                $self->data => sub {
+                    my ($store) = @_;
+
+                    if ($store->error) {
+                        $self->error($store->error);
+                        return $cb ? $cb->($self) : undef;
+                    }
+
+                    $self->_is_stored(1);
+                    $self->_is_flushed(1);
+
+                    return $cb ? $cb->($self) : 1;
+                }
+            );
+        }
+        else {
+            $ok = $self->store->$action($self->sid, $self->expires, $self->data);
+
+            unless ($ok) {
+                $self->error($self->store->error);
+                return;
+            }
+
+            $self->_is_stored(1);
+            $self->_is_flushed(1);
+
+            return $ok;
+        }
     }
-
-    return unless $ok;
-
-    $self->_is_stored(1);
-    $self->_is_flushed(1);
-
-    return $ok;
 }
 
 sub data {
@@ -228,6 +325,7 @@ sub clear {
 
 sub expire {
     my $self = shift;
+
     $self->expires(0);
 
     if ($self->transport) {
@@ -343,7 +441,7 @@ L<MojoX::Session> implements the following attributes.
 
     my $store = $session->store;
     $session  = $session->store(MojoX::Session::Store::Dbi->new(dbh => $dbh));
-    $session  = $session->store([dbi => {dbh => $dbh});
+    $session  = $session->store(dbi => {dbh => $dbh});
 
 =head2 C<transport>
 
@@ -477,7 +575,13 @@ vti, C<vti@cpan.org>.
 
 David Davis
 
+Maxim Vuets
+
+Sergey Zasenko
+
 William Ono
+
+Yaroslav Korshak
 
 =head1 COPYRIGHT
 
