@@ -1,5 +1,8 @@
 Revision history for MojoX-Session
 
+0.19    2010-04-08 00:00:00
+        - Upgraded to the lastes Mojo version
+
 0.16    2010-01-22 00:00:00
         - Fixed session initialization place in plugin to avoid cross-request
           data sharing (mvuets, korshak)
