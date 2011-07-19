@@ -1,10 +1,10 @@
 --- #YAML:1.0
 name:               MojoX-Session
-version:            0.23
+version:            0.24
 abstract:           Session management for Mojo
 author:
     - Viacheslav Tykhanovskyi <vti@cpan.org>
-license:            perl
+license:            artistic_2
 distribution_type:  module
 configure_requires:
     ExtUtils::MakeMaker:  0
@@ -13,14 +13,19 @@ build_requires:
 requires:
     Digest::SHA1:  0
     MIME::Base64:  0
-    Mojolicious:   1.0
+    Mojolicious:   1.64
+    perl:          5.008007
     Storable:      0
     Test::More:    0
+resources:
+    license:     http://dev.perl.org/licenses/
+    repository:  http://github.com/vti/mojox-session
 no_index:
     directory:
         - t
         - inc
-generated_by:       ExtUtils::MakeMaker version 6.56
+        - t
+generated_by:       ExtUtils::MakeMaker version 6.55_02
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4
