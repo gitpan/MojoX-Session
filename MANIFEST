@@ -5,10 +5,8 @@ lib/MojoX/Session.pm
 lib/MojoX/Session/Store.pm
 lib/MojoX/Session/Store/AsyncOrm.pm
 lib/MojoX/Session/Store/Couchdb.pm
-lib/MojoX/Session/Store/DBI.pm
 lib/MojoX/Session/Store/Dbi.pm
 lib/MojoX/Session/Store/Dbic.pm
-lib/MojoX/Session/Store/DBIC.pm
 lib/MojoX/Session/Transport.pm
 lib/MojoX/Session/Transport/Cookie.pm
 Makefile.PL
