@@ -1,31 +1,66 @@
 ---
 abstract: 'Session management for Mojo'
 author:
-  - 'Viacheslav Tykhanovskyi <vti@cpan.org>'
-build_requires:
-  ExtUtils::MakeMaker: 0
+  - 'Viacheslav Tykhanovskyi, C<vti@cpan.org>.'
+build_requires: {}
 configure_requires:
-  ExtUtils::MakeMaker: 0
-dynamic_config: 1
-generated_by: 'ExtUtils::MakeMaker version 6.6302, CPAN::Meta::Converter version 2.130880'
-license: artistic_2
+  CPAN::Meta: 0
+  CPAN::Meta::Prereqs: 0
+  Module::Build: 0.38
+dynamic_config: 0
+generated_by: 'Minilla/v0.4.3, CPAN::Meta::Converter version 2.130880'
+license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: MojoX-Session
+name: mojox-session
 no_index:
   directory:
     - t
+    - xt
     - inc
-    - t
+    - share
+    - eg
+    - examples
+    - author
+provides:
+  MojoX::Session:
+    file: lib/MojoX/Session.pm
+    version: 0.29
+  MojoX::Session::Store:
+    file: lib/MojoX/Session/Store.pm
+  MojoX::Session::Store::AsyncOrm:
+    file: lib/MojoX/Session/Store/AsyncOrm.pm
+  MojoX::Session::Store::Couchdb:
+    file: lib/MojoX/Session/Store/Couchdb.pm
+  MojoX::Session::Store::Dbi:
+    file: lib/MojoX/Session/Store/Dbi.pm
+  MojoX::Session::Store::Dbic:
+    file: lib/MojoX/Session/Store/Dbic.pm
+  MojoX::Session::Transport:
+    file: lib/MojoX/Session/Transport.pm
+  MojoX::Session::Transport::Cookie:
+    file: lib/MojoX/Session/Transport/Cookie.pm
+  Mojolicious::Plugin::Session:
+    file: lib/Mojolicious/Plugin/Session.pm
 requires:
   Digest::SHA: 0
   MIME::Base64: 0
-  Mojolicious: 4
+  Mojolicious: 4.45
   Storable: 0
   Test::More: 0
-  perl: 5.008007
 resources:
-  license: http://dev.perl.org/licenses/
-  repository: http://github.com/vti/mojox-session
-version: 0.28
+  bugtracker: https://github.com/vti/mojox-session/issues
+  homepage: https://github.com/vti/mojox-session
+  repository: git://github.com/vti/mojox-session.git
+version: 0.29
+x_contributors:
+  - 'David Davis <xantus@xantus.org>'
+  - 'und3f <d3fin3@gmail.com>'
+  - 'vti <vti@evologics.de>'
+  - 'Daniel Mascarenhas <daniel.mts@gmail.com>'
+  - 'Yaroslav Korshak <ykorshak@gmail.com>'
+  - 'Tom Kistner <tom@kistner.nu>'
+  - 'Alex Hutton <highspeeddub@gmail.com>'
+  - 'Alex Hutton <ahutton@infoxchange.net.au>'
+  - 'vti <viacheslav.t@gmail.com>'
