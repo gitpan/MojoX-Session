@@ -4,8 +4,10 @@
       "Viacheslav Tykhanovskyi, C<vti@cpan.org>."
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.4.3",
-   "license" : "perl_5",
+   "generated_by" : "Minilla/v0.7.5",
+   "license" : [
+      "perl_5"
+   ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
@@ -19,7 +21,8 @@
          "share",
          "eg",
          "examples",
-         "author"
+         "author",
+         "builder"
       ]
    },
    "prereqs" : {
@@ -35,7 +38,7 @@
             "Test::CPAN::Meta" : "0",
             "Test::MinimumVersion" : "0.10108",
             "Test::Pod" : "1.41",
-            "Test::Spellunker" : "v0.2.2"
+            "Test::Spellunker" : "v0.2.7"
          }
       },
       "runtime" : {
@@ -51,7 +54,7 @@
    "provides" : {
       "MojoX::Session" : {
          "file" : "lib/MojoX/Session.pm",
-         "version" : "0.29"
+         "version" : "0.30"
       },
       "MojoX::Session::Store" : {
          "file" : "lib/MojoX/Session/Store.pm"
@@ -89,7 +92,7 @@
          "web" : "https://github.com/vti/mojox-session"
       }
    },
-   "version" : "0.29",
+   "version" : "0.30",
    "x_contributors" : [
       "David Davis <xantus@xantus.org>",
       "und3f <d3fin3@gmail.com>",
@@ -99,6 +102,7 @@
       "Tom Kistner <tom@kistner.nu>",
       "Alex Hutton <highspeeddub@gmail.com>",
       "Alex Hutton <ahutton@infoxchange.net.au>",
+      "Sergey Homenkow <sergey@homenkow.ru>",
       "vti <viacheslav.t@gmail.com>"
    ]
 }

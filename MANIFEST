@@ -32,6 +32,7 @@ t/plugin.t
 t/store/couchdb.t
 t/store/dbi.t
 t/store/dbic.t
+t/transport/cookie-attrs.t
 t/transport/cookie-multi.t
 t/transport/cookie.t
 t/values.t

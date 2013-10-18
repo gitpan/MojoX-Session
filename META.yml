@@ -8,7 +8,7 @@ configure_requires:
   CPAN::Meta::Prereqs: 0
   Module::Build: 0.38
 dynamic_config: 0
-generated_by: 'Minilla/v0.4.3, CPAN::Meta::Converter version 2.130880'
+generated_by: 'Minilla/v0.7.5, CPAN::Meta::Converter version 2.130880'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -23,10 +23,11 @@ no_index:
     - eg
     - examples
     - author
+    - builder
 provides:
   MojoX::Session:
     file: lib/MojoX/Session.pm
-    version: 0.29
+    version: 0.30
   MojoX::Session::Store:
     file: lib/MojoX/Session/Store.pm
   MojoX::Session::Store::AsyncOrm:
@@ -53,7 +54,7 @@ resources:
   bugtracker: https://github.com/vti/mojox-session/issues
   homepage: https://github.com/vti/mojox-session
   repository: git://github.com/vti/mojox-session.git
-version: 0.29
+version: 0.30
 x_contributors:
   - 'David Davis <xantus@xantus.org>'
   - 'und3f <d3fin3@gmail.com>'
@@ -63,4 +64,5 @@ x_contributors:
   - 'Tom Kistner <tom@kistner.nu>'
   - 'Alex Hutton <highspeeddub@gmail.com>'
   - 'Alex Hutton <ahutton@infoxchange.net.au>'
+  - 'Sergey Homenkow <sergey@homenkow.ru>'
   - 'vti <viacheslav.t@gmail.com>'
