@@ -1,7 +1,10 @@
+Build.PL
 Changes
 LICENSE
 MANIFEST.SKIP
+META.json
 Makefile.PL
+README.md
 cpanfile
 examples/auth.pl
 lib/MojoX/Session.pm
@@ -13,6 +16,7 @@ lib/MojoX/Session/Store/Dbic.pm
 lib/MojoX/Session/Transport.pm
 lib/MojoX/Session/Transport/Cookie.pm
 lib/Mojolicious/Plugin/Session.pm
+minil.toml
 t/00use.t
 t/01pod.t
 t/02pod-coverage.t
@@ -36,7 +40,5 @@ t/transport/cookie-attrs.t
 t/transport/cookie-multi.t
 t/transport/cookie.t
 t/values.t
-Build.PL
-META.json
 META.yml
 MANIFEST

@@ -13,7 +13,7 @@ license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: mojox-session
+name: MojoX-Session
 no_index:
   directory:
     - t
@@ -27,7 +27,7 @@ no_index:
 provides:
   MojoX::Session:
     file: lib/MojoX/Session.pm
-    version: 0.30
+    version: 0.31
   MojoX::Session::Store:
     file: lib/MojoX/Session/Store.pm
   MojoX::Session::Store::AsyncOrm:
@@ -54,7 +54,7 @@ resources:
   bugtracker: https://github.com/vti/mojox-session/issues
   homepage: https://github.com/vti/mojox-session
   repository: git://github.com/vti/mojox-session.git
-version: 0.30
+version: 0.31
 x_contributors:
   - 'David Davis <xantus@xantus.org>'
   - 'und3f <d3fin3@gmail.com>'
